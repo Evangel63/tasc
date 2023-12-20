@@ -5,7 +5,10 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -32,13 +35,13 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
 
         CargoAPI playerCargo = playerFleet.getCargo();
         playerCargo.getCredits().subtract(creditCost);
-        playerCargo.removeCommodity("metals", metalCost);
-        playerCargo.removeCommodity("rare_metals", transplutonicsCost);
-        playerCargo.removeCommodity("crew", crewCost);
-        playerCargo.removeCommodity("heavy_machinery", heavyMachineryCost);
+        playerCargo.removeCommodity(Commodities.METALS, metalCost);
+        playerCargo.removeCommodity(Commodities.RARE_METALS, transplutonicsCost);
+        playerCargo.removeCommodity(Commodities.CREW, crewCost);
+        playerCargo.removeCommodity(Commodities.HEAVY_MACHINERY, heavyMachineryCost);
 
-        targetEntityForMarket.setFaction("player");
-        CargoAPI cargo = targetEntityForMarket.getMarket().getSubmarket("storage").getCargo();
+        targetEntityForMarket.setFaction(Factions.PLAYER);
+        CargoAPI cargo = targetEntityForMarket.getMarket().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
 
         //Create the new station market
         CampaignClockAPI clock = Global.getSector().getClock();
@@ -48,7 +51,7 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
         market.setSurveyLevel(MarketAPI.SurveyLevel.FULL);
         market.setPrimaryEntity(targetEntityForMarket);
 
-        market.setFactionId("player");
+        market.setFactionId(Factions.PLAYER);
         market.setPlayerOwned(true);
 
         market.addCondition(Conditions.POPULATION_3);
@@ -84,7 +87,7 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
         else if(targetEntityForMarket.hasTag("boggled_siphon_station") || targetEntityForMarket.getFullName().contains("Abandoned Siphon Station"))
         {
             SectorEntityToken hostGasGiant = null;
-            if(targetEntityForMarket.getOrbitFocus() != null && targetEntityForMarket.getOrbitFocus() instanceof PlanetAPI && targetEntityForMarket.getOrbitFocus().getMarket() != null && boggledTools.getPlanetType((PlanetAPI)targetEntityForMarket.getOrbitFocus()).equals("gas_giant"))
+            if(targetEntityForMarket.getOrbitFocus() != null && targetEntityForMarket.getOrbitFocus() instanceof PlanetAPI && targetEntityForMarket.getOrbitFocus().getMarket() != null && boggledTools.getPlanetType((PlanetAPI)targetEntityForMarket.getOrbitFocus()).equals(boggledTools.gasGiantPlanetID))
             {
                 hostGasGiant = targetEntityForMarket.getOrbitFocus();
             }
@@ -167,8 +170,8 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
         //the only change made is to hide the icon on markets where primary entity has station tag
         //This is done so refining and fuel production can slot the special items
         //Hopefully Alex will fix the no_atmosphere detection in the future so this hack can be removed
-        market.addCondition("no_atmosphere");
-        market.suppressCondition("no_atmosphere");
+        market.addCondition(Conditions.NO_ATMOSPHERE);
+        market.suppressCondition(Conditions.NO_ATMOSPHERE);
 
         targetEntityForMarket.setMarket(market);
 
@@ -180,14 +183,14 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
         //If the player doesn't view the colony management screen within a few days of market creation, then there can be a bug related to population growth
         Global.getSector().getCampaignUI().showInteractionDialog(targetEntityForMarket);
 
-        market.addSubmarket("storage");
-        StoragePlugin storage = (StoragePlugin)market.getSubmarket("storage").getPlugin();
+        market.addSubmarket(Submarkets.SUBMARKET_STORAGE);
+        StoragePlugin storage = (StoragePlugin)market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getPlugin();
         storage.setPlayerPaidToUnlock(true);
         market.addSubmarket("local_resources");
 
         if(!cargo.isEmpty())
         {
-            market.getSubmarket("storage").getCargo().addAll(cargo);
+            market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo().addAll(cargo);
         }
 
         market.addCondition("sprite_controller");
@@ -220,7 +223,7 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
         {
             return false;
         }
-        else if(closestColonizableStation.getMarket() != null && !closestColonizableStation.getMarket().getFactionId().equals("neutral"))
+        else if(closestColonizableStation.getMarket() != null && !closestColonizableStation.getMarket().getFactionId().equals(Factions.NEUTRAL))
         {
             return false;
         }
@@ -235,22 +238,22 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             return false;
         }
@@ -276,7 +279,7 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
 
         LabelAPI title = tooltip.addTitle("Colonize Abandoned Station");
         float pad = 10.0F;
-        tooltip.addPara("Colonize an abandoned station. Expends %s credits, %s crew, %s heavy machinery, %s metals and %s transplutonics for construction.", pad, highlight, new String[]{(int)creditCost + "",(int)crewCost + "",(int)heavyMachineryCost +"", (int)metalCost + "", (int)transplutonicsCost +""});
+        tooltip.addPara("Colonize an abandoned station. Expends %s credits, %s crew, %s heavy machinery, %s metals and %s transplutonics for construction.", pad, highlight, (int)creditCost + "",(int)crewCost + "",(int)heavyMachineryCost +"", (int)metalCost + "", (int)transplutonicsCost +"");
 
         SectorEntityToken playerFleet = Global.getSector().getPlayerFleet();
 
@@ -308,7 +311,7 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
             {
                 tooltip.addPara("There are no stations in this system.", bad, pad);
             }
-            else if(closestStation.getMarket() != null && !closestStation.getMarket().getFactionId().equals("neutral"))
+            else if(closestStation.getMarket() != null && !closestStation.getMarket().getFactionId().equals(Factions.NEUTRAL))
             {
                 tooltip.addPara("The station closest to your location is " + closestStation.getName() + " and it is controlled by " + closestStation.getMarket().getFaction().getDisplayNameWithArticle() + ". You cannot colonize a station that is already under the control of a major faction.", bad, pad);
             }
@@ -332,22 +335,22 @@ public class Colonize_Abandoned_Station extends BaseDurationAbility
             tooltip.addPara("Insufficient credits.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             tooltip.addPara("Insufficient crew.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             tooltip.addPara("Insufficient heavy machinery.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             tooltip.addPara("Insufficient metals.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             tooltip.addPara("Insufficient transplutonics.", bad, pad);
         }

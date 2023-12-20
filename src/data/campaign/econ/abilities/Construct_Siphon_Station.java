@@ -2,25 +2,14 @@ package data.campaign.econ.abilities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.fleet.FleetMemberViewAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
-import com.fs.starfarer.api.impl.campaign.ids.Conditions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
-import com.fs.starfarer.api.impl.campaign.terrain.AsteroidBeltTerrainPlugin;
-import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import java.awt.Color;
-import java.util.Iterator;
-import java.util.List;
-import com.fs.starfarer.combat.entities.terrain.Planet;
 import data.campaign.econ.boggledTools;
 import data.scripts.BoggledUnderConstructionEveryFrameScript;
 
@@ -43,10 +32,10 @@ public class Construct_Siphon_Station extends BaseDurationAbility
 
         CargoAPI playerCargo = playerFleet.getCargo();
         playerCargo.getCredits().subtract(creditCost);
-        playerCargo.removeCommodity("metals", metalCost);
-        playerCargo.removeCommodity("rare_metals", transplutonicsCost);
-        playerCargo.removeCommodity("crew", crewCost);
-        playerCargo.removeCommodity("heavy_machinery", heavyMachineryCost);
+        playerCargo.removeCommodity(Commodities.METALS, metalCost);
+        playerCargo.removeCommodity(Commodities.RARE_METALS, transplutonicsCost);
+        playerCargo.removeCommodity(Commodities.CREW, crewCost);
+        playerCargo.removeCommodity(Commodities.HEAVY_MACHINERY, heavyMachineryCost);
 
         SectorEntityToken newSiphonStation = system.addCustomEntity("boggled_siphon_station", hostGasGiant.getName() + " Siphon Station", "boggled_siphon_station_small", Global.getSector().getPlayerFleet().getFaction().getId());
         newSiphonStation.setCircularOrbitPointingDown(hostGasGiant, boggledTools.getAngleFromPlayerFleet(hostGasGiant)+ 5f, hostGasGiant.getRadius() + 50f, (hostGasGiant.getRadius() + 50f) / 10.0F);
@@ -85,7 +74,7 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             {
                 return false;
             }
-            else if(!closestGasGiantToken.getMarket().getFactionId().equals("player") && !closestGasGiantToken.getMarket().getFactionId().equals("neutral"))
+            else if(!closestGasGiantToken.getMarket().getFactionId().equals(Factions.PLAYER) && !closestGasGiantToken.getMarket().getFactionId().equals(Factions.NEUTRAL))
             {
                 return false;
             }
@@ -107,12 +96,8 @@ public class Construct_Siphon_Station extends BaseDurationAbility
 
             if(closestGasGiantToken != null)
             {
-                Iterator allEntitiesInSystem = Global.getSector().getPlayerFleet().getStarSystem().getAllEntities().iterator();
-                while(allEntitiesInSystem.hasNext())
-                {
-                    SectorEntityToken entity = (SectorEntityToken)allEntitiesInSystem.next();
-                    if(entity.hasTag("station") && entity.getOrbitFocus() != null && entity.getOrbitFocus().equals(closestGasGiantToken) && (entity.getCustomEntitySpec().getDefaultName().equals("Side Station") || entity.getCustomEntitySpec().getDefaultName().equals("Siphon Station")) && !entity.getId().equals("beholder_station"))
-                    {
+                for (SectorEntityToken entity : Global.getSector().getPlayerFleet().getStarSystem().getAllEntities()) {
+                    if (entity.hasTag("station") && entity.getOrbitFocus() != null && entity.getOrbitFocus().equals(closestGasGiantToken) && (entity.getCustomEntitySpec().getDefaultName().equals("Side Station") || entity.getCustomEntitySpec().getDefaultName().equals("Siphon Station")) && !entity.getId().equals("beholder_station")) {
                         return false;
                     }
                 }
@@ -125,12 +110,8 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             SectorEntityToken closestGasGiantToken = null;
             closestGasGiantToken = boggledTools.getClosestGasGiantToken(playerFleet);
 
-            Iterator allPlanetsInSystem = playerFleet.getStarSystem().getPlanets().iterator();
-            while(allPlanetsInSystem.hasNext())
-            {
-                PlanetAPI planet = (PlanetAPI) allPlanetsInSystem.next();
-                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getCircularOrbitRadius() < (closestGasGiantToken.getRadius() + 250f))
-                {
+            for (PlanetAPI planet : playerFleet.getStarSystem().getPlanets()) {
+                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getCircularOrbitRadius() < (closestGasGiantToken.getRadius() + 250f)) {
                     return false;
                 }
             }
@@ -142,22 +123,22 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             return false;
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             return false;
         }
@@ -205,7 +186,7 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             {
                 tooltip.addPara("There are no gas giants in this system.", bad, pad);
             }
-            else if(!closestGasGiantToken.getMarket().getFactionId().equals("player") && !closestGasGiantToken.getMarket().getFactionId().equals("neutral"))
+            else if(!closestGasGiantToken.getMarket().getFactionId().equals(Factions.PLAYER) && !closestGasGiantToken.getMarket().getFactionId().equals(Factions.NEUTRAL))
             {
                 tooltip.addPara("The gas giant closest to your location is " + closestGasGiantToken.getName() + " which is controlled by " + closestGasGiantToken.getMarket().getFaction().getDisplayName() + ". You cannot construct a siphon station in orbit around a gas giant controlled by another faction.", bad, pad);
             }
@@ -226,12 +207,8 @@ public class Construct_Siphon_Station extends BaseDurationAbility
 
             if(closestGasGiantToken != null)
             {
-                Iterator allEntitiesInSystem = Global.getSector().getPlayerFleet().getStarSystem().getAllEntities().iterator();
-                while(allEntitiesInSystem.hasNext())
-                {
-                    SectorEntityToken entity = (SectorEntityToken)allEntitiesInSystem.next();
-                    if(entity.hasTag("station") && entity.getOrbitFocus() != null && entity.getOrbitFocus().equals(closestGasGiantToken) && (entity.getCustomEntitySpec().getDefaultName().equals("Side Station") || entity.getCustomEntitySpec().getDefaultName().equals("Siphon Station")) && !entity.getId().equals("beholder_station") && !entity.getId().contains("armaa_"))
-                    {
+                for (SectorEntityToken entity : Global.getSector().getPlayerFleet().getStarSystem().getAllEntities()) {
+                    if (entity.hasTag("station") && entity.getOrbitFocus() != null && entity.getOrbitFocus().equals(closestGasGiantToken) && (entity.getCustomEntitySpec().getDefaultName().equals("Side Station") || entity.getCustomEntitySpec().getDefaultName().equals("Siphon Station")) && !entity.getId().equals("beholder_station") && !entity.getId().contains("armaa_")) {
                         tooltip.addPara("Each gas giant can only support a single siphon station.", bad, pad);
                     }
                 }
@@ -244,12 +221,8 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             SectorEntityToken closestGasGiantToken = null;
             closestGasGiantToken = boggledTools.getClosestGasGiantToken(playerFleet);
 
-            Iterator allPlanetsInSystem = playerFleet.getStarSystem().getPlanets().iterator();
-            while(allPlanetsInSystem.hasNext())
-            {
-                PlanetAPI planet = (PlanetAPI) allPlanetsInSystem.next();
-                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getCircularOrbitRadius() < (closestGasGiantToken.getRadius() + 250f))
-                {
+            for (PlanetAPI planet : playerFleet.getStarSystem().getPlanets()) {
+                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getCircularOrbitRadius() < (closestGasGiantToken.getRadius() + 250f)) {
                     tooltip.addPara("A siphon station would be unable to achieve a satisfactory orbit around " + closestGasGiantToken.getName() + " because " + planet.getName() + " is too close to the projected orbital path.", bad, pad);
                     break;
                 }
@@ -263,12 +236,8 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             SectorEntityToken closestGasGiantToken = null;
             closestGasGiantToken = boggledTools.getClosestGasGiantToken(playerFleet);
 
-            Iterator allPlanetsInSystem = playerFleet.getStarSystem().getPlanets().iterator();
-            while(allPlanetsInSystem.hasNext())
-            {
-                PlanetAPI planet = (PlanetAPI) allPlanetsInSystem.next();
-                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getRadius() != 0)
-                {
+            for (PlanetAPI planet : playerFleet.getStarSystem().getPlanets()) {
+                if (planet.getOrbitFocus() != null && !planet.isStar() && planet.getOrbitFocus().equals(closestGasGiantToken) && planet.getRadius() != 0) {
                     numMoons++;
                 }
             }
@@ -285,22 +254,22 @@ public class Construct_Siphon_Station extends BaseDurationAbility
             tooltip.addPara("Insufficient credits.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             tooltip.addPara("Insufficient crew.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             tooltip.addPara("Insufficient heavy machinery.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             tooltip.addPara("Insufficient metals.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             tooltip.addPara("Insufficient transplutonics.", bad, pad);
         }

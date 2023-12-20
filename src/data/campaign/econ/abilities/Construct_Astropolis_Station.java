@@ -3,6 +3,8 @@ package data.campaign.econ.abilities;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -103,10 +105,10 @@ public class Construct_Astropolis_Station extends BaseDurationAbility
 
         CargoAPI playerCargo = playerFleet.getCargo();
         playerCargo.getCredits().subtract(creditCost);
-        playerCargo.removeCommodity("metals", metalCost);
-        playerCargo.removeCommodity("rare_metals", transplutonicsCost);
-        playerCargo.removeCommodity("crew", crewCost);
-        playerCargo.removeCommodity("heavy_machinery", heavyMachineryCost);
+        playerCargo.removeCommodity(Commodities.METALS, metalCost);
+        playerCargo.removeCommodity(Commodities.RARE_METALS, transplutonicsCost);
+        playerCargo.removeCommodity(Commodities.CREW, crewCost);
+        playerCargo.removeCommodity(Commodities.HEAVY_MACHINERY, heavyMachineryCost);
 
         SectorEntityToken targetPlanet = boggledTools.getClosestPlanetToken(playerFleet);
         int numAstro = numAstroInOrbit(targetPlanet);
@@ -279,7 +281,7 @@ public class Construct_Astropolis_Station extends BaseDurationAbility
         }
 
         SectorEntityToken targetPlanet = boggledTools.getClosestPlanetToken(playerFleet);
-        if(targetPlanet == null || targetPlanet.getMarket() == null || (!targetPlanet.getMarket().isPlayerOwned() && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction("neutral") && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction("player")))
+        if(targetPlanet == null || targetPlanet.getMarket() == null || (!targetPlanet.getMarket().isPlayerOwned() && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction(Factions.NEUTRAL) && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction(Factions.PLAYER)))
         {
             return false;
         }
@@ -322,22 +324,22 @@ public class Construct_Astropolis_Station extends BaseDurationAbility
             playerHasResources = false;
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             playerHasResources = false;
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             playerHasResources = false;
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             playerHasResources = false;
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             playerHasResources = false;
         }
@@ -387,7 +389,7 @@ public class Construct_Astropolis_Station extends BaseDurationAbility
                 tooltip.addPara("Target host world: %s", pad, highlight, new String[]{targetPlanet.getName()});
             }
 
-            if(targetPlanet.getMarket() != null && (!targetPlanet.getMarket().isPlayerOwned() && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction("neutral") && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction("player")))
+            if(targetPlanet.getMarket() != null && (!targetPlanet.getMarket().isPlayerOwned() && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction(Factions.NEUTRAL) && targetPlanet.getMarket().getFaction() != Global.getSector().getFaction(Factions.PLAYER)))
             {
                 tooltip.addPara("You cannot construct an astropolis station in orbit around a world already controlled by another faction.", bad, pad);
             }
@@ -454,22 +456,22 @@ public class Construct_Astropolis_Station extends BaseDurationAbility
             tooltip.addPara("Insufficient credits.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("crew") < crewCost)
+        if(playerCargo.getCommodityQuantity(Commodities.CREW) < crewCost)
         {
             tooltip.addPara("Insufficient crew.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("heavy_machinery") < heavyMachineryCost)
+        if(playerCargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) < heavyMachineryCost)
         {
             tooltip.addPara("Insufficient heavy machinery.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("metals") < metalCost)
+        if(playerCargo.getCommodityQuantity(Commodities.METALS) < metalCost)
         {
             tooltip.addPara("Insufficient metals.", bad, pad);
         }
 
-        if(playerCargo.getCommodityQuantity("rare_metals") < transplutonicsCost)
+        if(playerCargo.getCommodityQuantity(Commodities.RARE_METALS) < transplutonicsCost)
         {
             tooltip.addPara("Insufficient transplutonics.", bad, pad);
         }
